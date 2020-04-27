@@ -106,6 +106,10 @@ begin
     var subClassObj := System.Activator.CreateInstance(subClass);
     
     var time := Milliseconds;
+    
+    var setUp := subClass.GetMethods.Find(x -> x.Name.ToLower = 'setup');
+    if setUp <> nil then setUp.Invoke(subClassObj, nil);
+    
     var methods := subClass.GetMethods.Where(m -> m.Name.StartsWith('test'));
     foreach var method in methods do
       begin
