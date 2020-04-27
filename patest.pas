@@ -1,13 +1,39 @@
 ﻿unit patest;
 
 type TestCase = class
+  procedure assertEqual<T>(a, b: T);
+  begin
+    if a = b then
+      println('Test passed!')
+    else
+      println('Oops! Something get wrong..');
+  end;
+    
+  procedure assertNotEqual<T>(a, b: T);
+  begin
+    if a <> b then
+      println('Test passed!')
+    else
+      println('Oops! Something get wrong..');
+  end;
+
+  procedure assertTrue(cond: boolean);
+  begin
+    if cond then
+      println('Test passed!')
+    else
+      println('Oops! Something get wrong..');
+  end;
+
+  procedure assertFalse(cond: boolean);
+  begin
+    if not cond then
+      println('Test passed!')
+    else
+      println('Oops! Something get wrong..');
+  end;
+
 end;
-
-
-//procedure assertEqual<T>(a, b: T);
-//begin
-//  println(a, b);
-//end;
 
 
 procedure main();
@@ -18,12 +44,9 @@ begin
     begin
     var subClassObj := System.Activator.CreateInstance(subClass);
     
-    var objectClassMethods: array of string := ('$Init$', 'Equals', 'GetType', 'GetHashCode', 'ToString');
     var methods := subClass.GetMethods.Where(m -> m.Name.StartsWith('test'));
-    
     foreach var method in methods do
         method.Invoke(subClassObj, nil);
-
     end;
   
 end;
