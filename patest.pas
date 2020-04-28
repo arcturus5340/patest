@@ -107,14 +107,16 @@ begin
     
     var time := Milliseconds;
     
-    var setUp := subClass.GetMethods.Find(x -> x.Name.ToLower = 'setup');
+    var setUp := subClass.GetMethods.Find(x -> x.Name.ToLower = 'setup'); 
     if setUp <> nil then setUp.Invoke(subClassObj, nil);
     
     var methods := subClass.GetMethods.Where(m -> m.Name.StartsWith('test'));
     foreach var method in methods do
-      begin
       method.Invoke(subClassObj, nil);
-      end;
+      
+    var tearDown := subClass.GetMethods.Find(x -> x.Name.ToLower = 'teardown');
+    if tearDown <> nil then tearDown.Invoke(subClassObj, nil);
+    
     writeln;
     writeln('='*80);
     foreach var fail in out_buff do
