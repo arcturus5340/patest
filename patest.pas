@@ -15,6 +15,7 @@ end;
 
 type TestCase = class
   procedure assertEqual<T>(a, b: T);
+  where T: System.IEquatable<T>;
   begin
     if a = b then
       begin
@@ -23,7 +24,7 @@ type TestCase = class
     else
       begin
       write('F');
-      var msg := format('{0} <> {1}', a, b);
+      var msg := format('{0} <> {1}' , a, b);
       out_buff.Add(_get_fail_msg(msg));
       end;
   end;
@@ -90,6 +91,30 @@ type TestCase = class
         write('F');
         var msg := format('Параметр ({0}) не распознан как логическое значение', a);
         out_buff.Add(_get_fail_msg(msg));
+        end;
+    end;
+  end;
+    
+  procedure assertRaises<T>(exc: Exception; func: System.Func<T>);
+  begin
+    println(exc);
+    try 
+      begin
+      func();
+      write('.');
+      end;
+    except
+      on System.Exception do
+        begin
+        if exc.InnerException = exc then
+          write('.')
+        else
+          begin
+          write('F');
+          println(exc);
+          var msg := format('Было вызвано стороннее исключение {0} (не {1})', exc.InnerException, exc);
+          out_buff.Add(_get_fail_msg(msg));
+          end;
         end;
     end;
   end;
