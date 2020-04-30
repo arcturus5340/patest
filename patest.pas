@@ -95,30 +95,25 @@ type TestCase = class
     end;
   end;
     
-  procedure assertRaises<T>(exc: Exception; func: System.Func<T>);
+  procedure assertRaises<TException, T>(func: System.Func<T>);
+  where TException: System.Exception;
   begin
-    println(exc);
     try 
       begin
       func();
       write('.');
       end;
     except
-      on System.Exception do
-        begin
-        if exc.InnerException = exc then
-          write('.')
-        else
-          begin
-          write('F');
-          println(exc);
-          var msg := format('Было вызвано стороннее исключение {0} (не {1})', exc.InnerException, exc);
-          out_buff.Add(_get_fail_msg(msg));
-          end;
-        end;
+      on TException do
+        write('.');
+    else
+      begin
+      write('F');
+      var msg := format('Было вызвано стороннее исключение');
+      out_buff.Add(_get_fail_msg(msg));
+      end
     end;
   end;
-
 end;
 
 
