@@ -95,7 +95,7 @@ type TestCase = class
     end;
   end;
     
-  procedure assertRaises<TException, T>(func: System.Func<T>);
+  procedure assertRaises<TException>(func: System.Action);
   where TException: System.Exception;
   begin
     try 
@@ -104,14 +104,14 @@ type TestCase = class
       write('.');
       end;
     except
-      on TException do
+      on e: TException do
         write('.');
-    else
-      begin
-      write('F');
-      var msg := format('Было вызвано стороннее исключение');
-      out_buff.Add(_get_fail_msg(msg));
-      end
+      on e: System.Exception do
+        begin
+        write('F');
+        var msg := format('Было вызвано стороннее исключение {0} (не {1})', e.GetType, typeof(TException));
+        out_buff.Add(_get_fail_msg(msg));
+        end
     end;
   end;
 end;
