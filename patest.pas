@@ -6,10 +6,17 @@ var out_buff: List<string>;
 function _get_fail_msg(msg: string): string;
 begin
   var stackTrace := new System.Diagnostics.StackTrace;
-  result := format('FAIL: {0} ({1}) '#10'    AssertionError: {2}', 
+  result := format('FAIL: {0} ({1}) '#10+'-'*80+#10'{2}'#10, 
                    stackTrace.GetFrame(2).GetMethod.Name, 
                    stackTrace.GetFrame(2).GetMethod.DeclaringType, 
                    msg);
+end;
+
+
+function _get_error_msg(e: Exception; method_name: string): string;
+begin
+  result := format('ERROR: {0} ({1}) '#10+'-'*80+#10'{2}'#10'{3}: {4}'#10, 
+                   method_name, e.Source, e.StackTrace, e.GetType, e.Message);
 end;
 
 
@@ -24,12 +31,13 @@ type TestCase = class
     else
       begin
       write('F');
-      var msg := format('{0} <> {1}' , a, b);
+      var msg := format('AssertionError: {0} <> {1}' , a, b);
       out_buff.Add(_get_fail_msg(msg));
       end;
   end;
     
   procedure assertNotEqual<T>(a, b: T);
+  where T: System.IEquatable<T>;
   begin
     if a <> b then
       begin
@@ -38,7 +46,7 @@ type TestCase = class
     else
       begin
       write('F');
-      var msg := format('{0} = {1}', a, b);
+      var msg := format('AssertionError: {0} = {1}', a, b);
       out_buff.Add(_get_fail_msg(msg));
       end;
   end;
@@ -134,15 +142,24 @@ begin
     
     var methods := subClass.GetMethods.Where(m -> m.Name.StartsWith('test'));
     foreach var method in methods do
-      method.Invoke(subClassObj, nil);
+      try
+        method.Invoke(subClassObj, nil);
+      except on e: Exception do
+        begin
+        write('E');
+        Out_buff.Add(_get_error_msg(e.InnerException, method.Name));
+        end;
+      end;
       
     var tearDown := subClass.GetMethods.Find(x -> x.Name.ToLower = 'teardown');
     if tearDown <> nil then tearDown.Invoke(subClassObj, nil);
     
     writeln;
-    writeln('='*80);
     foreach var fail in out_buff do
+      begin
+      writeln('='*80);
       writeln(fail);
+      end;
     writeln('-'*80);
     writeln(format('Ran {0} test in {1}s', methods.ToArray.Length, (Milliseconds-time)/1000));
     end;
