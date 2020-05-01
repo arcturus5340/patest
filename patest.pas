@@ -101,7 +101,9 @@ type TestCase = class
     try 
       begin
       func();
-      write('.');
+      write('F');
+      var msg := format('Исключение {0} не было вызвано', typeof(TException));
+      out_buff.Add(_get_fail_msg(msg));
       end;
     except
       on e: TException do
